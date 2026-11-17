@@ -1,0 +1,2 @@
+TEXT-ONLY REVIEW INPUT
+Review the supplied original prose, headings, captions, and footnotes under the common review contract and PROSE READING. No HTML table bodies, table images, figure images, figure transcriptions, or flattened table content are supplied. Use optional coefficient diagnostics only as search aids under the shared text-review rules; absence of a value is not sufficient to remove an inherited record. Return only the common revision decision object.

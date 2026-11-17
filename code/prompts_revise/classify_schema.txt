@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One short factual sentence grounded in the supplied original source.",
+      "maxLength": 300
+    },
+    "label": {
+      "type": "string",
+      "enum": [
+        "tested_relations",
+        "hypothesized_relations",
+        "other"
+      ],
+      "description": "Current-study eligible structural results (including nonsignificant), explicit hypotheses without results, or no eligible relation. Mixed hypotheses/results: tested_relations."
+    }
+  },
+  "required": [
+    "reason",
+    "label"
+  ],
+  "additionalProperties": false
+}

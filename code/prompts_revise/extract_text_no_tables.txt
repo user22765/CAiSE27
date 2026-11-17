@@ -1,0 +1,4 @@
+TASK: TEXT EXTRACTION WITHOUT HTML TABLES
+Extract eligible relations from the supplied prose and associated headings, captions, and footnotes using ARTICLE CONTEXT and the shared specification and PROSE READING components. Sources may comprise the entire eligible prose, a selected subset, or an individual paragraph; use only the supplied sources as relation evidence.
+No HTML table bodies, table images, figure images, figure transcriptions, or flattened copies of omitted table bodies are part of this condition. Do not reconstruct an omitted table or figure from a caption. Explicit relations or statistics stated in the supplied prose or captions remain admissible.
+OUTPUT: Return only the relation array defined by JSON SCHEMA, including [] when no eligible relation is supported.

@@ -1,0 +1,4 @@
+TASK: SINGLE-IMAGE EXTRACTION
+The input contains one original figure image with its associated caption and footnotes, plus ARTICLE CONTEXT. Apply the shared specification and DIAGRAM READING component. Table images are handled by the table modality and are not sent to this task. No other original image or figure transcription is available in this request.
+Extract explicit hypothesized and tested relations from this input. Hypotheses retain null unreported statistics. Merge repeated representations within the input only when they clearly describe the same relation in the same model/group. Matching records from other images will be combined during aggregation; do not presume their contents.
+OUTPUT: Return only the relation array defined by JSON SCHEMA, including [] when the image supports no eligible relation.

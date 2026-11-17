@@ -1,0 +1,293 @@
+{
+  "version": 1,
+  "instructions": "Concatenate components in order, then append the schema and stage inputs. All requires_context stages receive the same frozen context.json. Source routing, validation and snapshot persistence are caller responsibilities. Table images are routed to the table recipe.",
+  "recipes": {
+    "context": {
+      "components": [
+        "represent_text.txt",
+        "represent_tables.txt",
+        "represent_diagrams.txt",
+        "represent_transcriptions.txt",
+        "context.txt"
+      ],
+      "schema": "context_schema.txt",
+      "requires_context": false,
+      "allows_figure_transcriptions": true,
+      "max_original_images": 0
+    },
+    "baseline": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "represent_tables.txt",
+        "represent_diagrams.txt",
+        "represent_transcriptions.txt",
+        "extract_baseline.txt"
+      ],
+      "schema": "relation_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": true,
+      "max_original_images": null,
+      "text_condition": "with_html_tables"
+    },
+    "text_with_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "represent_tables.txt",
+        "extract_text.txt"
+      ],
+      "schema": "relation_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 0,
+      "text_condition": "with_html_tables"
+    },
+    "text_without_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "extract_text_no_tables.txt"
+      ],
+      "schema": "relation_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 0,
+      "text_condition": "without_html_tables"
+    },
+    "table": {
+      "components": [
+        "extract.txt",
+        "represent_tables.txt",
+        "extract_tables.txt"
+      ],
+      "schema": "relation_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 1
+    },
+    "image": {
+      "components": [
+        "extract.txt",
+        "represent_diagrams.txt",
+        "extract_images.txt"
+      ],
+      "schema": "relation_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 1
+    },
+    "early_with_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "represent_tables.txt",
+        "represent_diagrams.txt",
+        "extract_joint.txt"
+      ],
+      "schema": "relation_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": null,
+      "text_condition": "with_html_tables"
+    },
+    "early_without_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "represent_tables.txt",
+        "represent_diagrams.txt",
+        "extract_joint.txt"
+      ],
+      "schema": "relation_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": null,
+      "text_condition": "without_html_tables"
+    },
+    "intermediate_text_with_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "represent_tables.txt",
+        "intermediate.txt"
+      ],
+      "schema": "intermediate_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 0,
+      "text_condition": "with_html_tables"
+    },
+    "intermediate_text_without_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "intermediate.txt"
+      ],
+      "schema": "intermediate_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 0,
+      "text_condition": "without_html_tables"
+    },
+    "intermediate_image": {
+      "components": [
+        "extract.txt",
+        "represent_diagrams.txt",
+        "intermediate.txt"
+      ],
+      "schema": "intermediate_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 1
+    },
+    "intermediate_table": {
+      "components": [
+        "extract.txt",
+        "represent_tables.txt",
+        "intermediate.txt"
+      ],
+      "schema": "intermediate_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 1
+    },
+    "consolidate": {
+      "components": [
+        "extract.txt",
+        "fuse.txt"
+      ],
+      "schema": "fusion_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 0
+    },
+    "late": {
+      "components": [
+        "extract.txt",
+        "fuse.txt",
+        "late_fusion.txt"
+      ],
+      "schema": "late_fusion_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 0
+    },
+    "review_text_with_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "represent_tables.txt",
+        "revise.txt",
+        "revise_text.txt"
+      ],
+      "schema": "revision_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 0,
+      "text_condition": "with_html_tables"
+    },
+    "review_text_without_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "revise.txt",
+        "revise_text.txt",
+        "revise_text_no_tables.txt"
+      ],
+      "schema": "revision_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 0,
+      "text_condition": "without_html_tables"
+    },
+    "review_table": {
+      "components": [
+        "extract.txt",
+        "represent_tables.txt",
+        "revise.txt",
+        "revise_tables.txt"
+      ],
+      "schema": "revision_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 1
+    },
+    "review_image": {
+      "components": [
+        "extract.txt",
+        "represent_diagrams.txt",
+        "revise.txt",
+        "revise_images.txt"
+      ],
+      "schema": "revision_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 1
+    },
+    "review_joint_with_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "represent_tables.txt",
+        "represent_diagrams.txt",
+        "revise.txt",
+        "revise_joint.txt"
+      ],
+      "schema": "revision_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": null,
+      "text_condition": "with_html_tables"
+    },
+    "review_joint_without_tables": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "represent_tables.txt",
+        "represent_diagrams.txt",
+        "revise.txt",
+        "revise_joint.txt"
+      ],
+      "schema": "revision_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": null,
+      "text_condition": "without_html_tables"
+    },
+    "classify_text": {
+      "components": [
+        "extract.txt",
+        "represent_text.txt",
+        "classify.txt"
+      ],
+      "schema": "classify_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 0
+    },
+    "classify_table": {
+      "components": [
+        "extract.txt",
+        "represent_tables.txt",
+        "classify.txt"
+      ],
+      "schema": "classify_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 1
+    },
+    "classify_image": {
+      "components": [
+        "extract.txt",
+        "represent_diagrams.txt",
+        "classify.txt"
+      ],
+      "schema": "classify_schema.txt",
+      "requires_context": true,
+      "allows_figure_transcriptions": false,
+      "max_original_images": 1
+    }
+  },
+  "caller_artifact_schema": "review_audit_schema.txt"
+}

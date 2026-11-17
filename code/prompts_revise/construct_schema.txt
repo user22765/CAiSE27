@@ -1,0 +1,67 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Attested full canonical construct name when available."
+      },
+      "aliases": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "minItems": 0,
+        "description": "Attested equivalent labels only; each label must identify one construct. No duplicate entries."
+      },
+      "definition": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 1,
+        "description": "Verbatim explicitly supplied construct definition; no paraphrase or reconstruction."
+      },
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "minItems": 0,
+        "description": "Verbatim explicitly supplied measurement items associated with this construct; [] when absent."
+      },
+      "scale_references": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "minItems": 0,
+        "description": "Explicit scale references copied from the source."
+      },
+      "source_ids": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "minItems": 1,
+        "description": "Original source IDs supporting the record, including valid inherited support. Never candidate IDs. No duplicate entries."
+      }
+    },
+    "required": [
+      "name",
+      "aliases",
+      "definition",
+      "items",
+      "scale_references",
+      "source_ids"
+    ],
+    "additionalProperties": false
+  },
+  "minItems": 0
+}

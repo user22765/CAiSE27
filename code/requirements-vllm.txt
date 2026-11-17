@@ -1,0 +1,5 @@
+-r requirements.txt
+# Use a vLLM build that supports the exact chosen model architecture.
+# Pin the tested version/commit in the environment lock after the GPU smoke test.
+vllm
+Pillow>=11

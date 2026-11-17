@@ -1,0 +1,666 @@
+{
+  "type": "object",
+  "properties": {
+    "article_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stage": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Extraction/fusion stage and intermediate direction when applicable."
+    },
+    "batch_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context_fingerprint": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Fingerprint of the frozen shared context.json used by this run."
+    },
+    "source_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0,
+      "description": "Sources available to this review, including source IDs represented by the single image when present.",
+      "uniqueItems": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "applied",
+        "skipped",
+        "failed"
+      ]
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "description": "Skip/failure reason or application summary."
+    },
+    "before": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SnapshotRelation"
+      },
+      "minItems": 0
+    },
+    "review": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Review"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "after": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SnapshotRelation"
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "article_id",
+    "stage",
+    "batch_id",
+    "context_fingerprint",
+    "source_ids",
+    "status",
+    "reason",
+    "before",
+    "review",
+    "after"
+  ],
+  "additionalProperties": false,
+  "description": "Caller-written review artifact, not an LLM response schema. Persist before prior to review; failed/skipped reviews retain the before snapshot as after. Store batch and article-level outputs separately.",
+  "$defs": {
+    "SnapshotRelation": {
+      "type": "object",
+      "properties": {
+        "cause": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Canonical initial predictor, or the supplied label verbatim if context has no unique mapping."
+        },
+        "effect": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Canonical directed outcome, or the supplied label verbatim if context has no unique mapping."
+        },
+        "moderator": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Named moderator only when explicitly represented; null otherwise."
+        },
+        "mediator": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Exactly one named mediator for an eligible indirect effect; null otherwise. Serial mediation is excluded."
+        },
+        "effect_type": {
+          "type": "string",
+          "enum": [
+            "direct",
+            "indirect",
+            "moderation"
+          ],
+          "description": "Must agree with mediator/moderator: direct has neither; moderation has only moderator; indirect has one mediator and may have a moderator for explicit moderated mediation."
+        },
+        "is_control": {
+          "type": "boolean",
+          "description": "True only for an explicitly identified structural control/covariate; false is not evidence of an explicit non-control claim."
+        },
+        "beta": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Reported signed coefficient at its reported precision; no [-1, 1] bound and no rounding for matching."
+        },
+        "coefficient_type": {
+          "type": "string",
+          "enum": [
+            "standardized",
+            "unstandardized",
+            "unknown"
+          ],
+          "description": "Source-established type. If both a standardized and an unstandardized estimate are reported, each is its own record; the pipeline keeps the standardized one."
+        },
+        "p": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^(?:[<>]=?|=)?(?:0(?:\\.\\d+)?|1(?:\\.0+)?)$",
+          "description": "Reported exact p-value or inequality, preserving boundaries; never calculated from a coefficient/test statistic. A relation reported only as nonsignificant (e.g. n.s.) without a p-value: \">0.1\". Reported, or marked by a scoped legend, as significant at level α without a p-value: \"<α\" (e.g. \"<0.05\")."
+        },
+        "significance": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Explicit source finding or decision under an applicable explicitly reported criterion. Never assume alpha; null when insufficient evidence or an unresolved conflict."
+        },
+        "model_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Canonical context model ID when the sources establish it; otherwise null, never a wildcard."
+        },
+        "group_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Canonical context population/sample group ID when uniquely established; otherwise null, never a wildcard."
+        },
+        "hypothesis_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Explicitly associated hypothesis identifier; null if absent or unresolved."
+        },
+        "candidate_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "description": "Every input candidate ID must occur in exactly one output record.",
+          "uniqueItems": true
+        },
+        "supported_by": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "text",
+              "tables",
+              "images"
+            ]
+          },
+          "minItems": 1,
+          "description": "Modalities of represented predictions, not verification against original sources.",
+          "uniqueItems": true
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "agreement",
+            "complementary",
+            "contradiction",
+            "uncertain",
+            "single_modality"
+          ],
+          "description": "Unresolved matching or compatibility without demonstrated contradiction: uncertain. Established conflicting claims: contradiction. Otherwise one modality: single_modality; cross-modality supplementation/standardized selection: complementary; equal claims: agreement."
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cause": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Canonical initial predictor, or the supplied label verbatim if context has no unique mapping."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Canonical directed outcome, or the supplied label verbatim if context has no unique mapping."
+              },
+              "moderator": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Named moderator only when explicitly represented; null otherwise."
+              },
+              "mediator": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Exactly one named mediator for an eligible indirect effect; null otherwise. Serial mediation is excluded."
+              },
+              "effect_type": {
+                "type": "string",
+                "enum": [
+                  "direct",
+                  "indirect",
+                  "moderation"
+                ],
+                "description": "Must agree with mediator/moderator: direct has neither; moderation has only moderator; indirect has one mediator and may have a moderator for explicit moderated mediation."
+              },
+              "is_control": {
+                "type": "boolean",
+                "description": "True only for an explicitly identified structural control/covariate; false is not evidence of an explicit non-control claim."
+              },
+              "beta": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "Reported signed coefficient at its reported precision; no [-1, 1] bound and no rounding for matching."
+              },
+              "coefficient_type": {
+                "type": "string",
+                "enum": [
+                  "standardized",
+                  "unstandardized",
+                  "unknown"
+                ],
+                "description": "Source-established type. If both a standardized and an unstandardized estimate are reported, each is its own record; the pipeline keeps the standardized one."
+              },
+              "p": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^(?:[<>]=?|=)?(?:0(?:\\.\\d+)?|1(?:\\.0+)?)$",
+                "description": "Reported exact p-value or inequality, preserving boundaries; never calculated from a coefficient/test statistic. A relation reported only as nonsignificant (e.g. n.s.) without a p-value: \">0.1\". Reported, or marked by a scoped legend, as significant at level α without a p-value: \"<α\" (e.g. \"<0.05\")."
+              },
+              "significance": {
+                "type": [
+                  "boolean",
+                  "null"
+                ],
+                "description": "Explicit source finding or decision under an applicable explicitly reported criterion. Never assume alpha; null when insufficient evidence or an unresolved conflict."
+              },
+              "model_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Canonical context model ID when the sources establish it; otherwise null, never a wildcard."
+              },
+              "group_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Canonical context population/sample group ID when uniquely established; otherwise null, never a wildcard."
+              },
+              "hypothesis_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Explicitly associated hypothesis identifier; null if absent or unresolved."
+              }
+            },
+            "required": [
+              "candidate_id",
+              "cause",
+              "effect",
+              "moderator",
+              "mediator",
+              "effect_type",
+              "is_control",
+              "beta",
+              "coefficient_type",
+              "p",
+              "significance",
+              "model_id",
+              "group_id",
+              "hypothesis_id"
+            ],
+            "additionalProperties": false,
+            "description": "Original semantic candidate retained for an unresolved conflict, including estimate type and source/context identity."
+          },
+          "minItems": 0,
+          "description": "For contradiction preserve every represented original candidate (at least two); otherwise []. Set only unresolved conflicting nullable fields to null in the consolidated record."
+        }
+      },
+      "required": [
+        "cause",
+        "effect",
+        "moderator",
+        "mediator",
+        "effect_type",
+        "is_control",
+        "beta",
+        "coefficient_type",
+        "p",
+        "significance",
+        "model_id",
+        "group_id",
+        "hypothesis_id"
+      ],
+      "additionalProperties": false,
+      "description": "Exact stage snapshot with common semantic fields and any retained consolidation fields. Optional fields preserve originals without forcing a new model response."
+    },
+    "Review": {
+      "type": "object",
+      "properties": {
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "candidate_id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Input prediction identifier, not an original source ID."
+              },
+              "action": {
+                "type": "string",
+                "enum": [
+                  "keep",
+                  "replace",
+                  "remove"
+                ]
+              },
+              "replacement": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "cause": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Canonical initial predictor, or the supplied label verbatim if context has no unique mapping."
+                      },
+                      "effect": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Canonical directed outcome, or the supplied label verbatim if context has no unique mapping."
+                      },
+                      "moderator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "minLength": 1,
+                        "description": "Named moderator only when explicitly represented; null otherwise."
+                      },
+                      "mediator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "minLength": 1,
+                        "description": "Exactly one named mediator for an eligible indirect effect; null otherwise. Serial mediation is excluded."
+                      },
+                      "effect_type": {
+                        "type": "string",
+                        "enum": [
+                          "direct",
+                          "indirect",
+                          "moderation"
+                        ],
+                        "description": "Must agree with mediator/moderator: direct has neither; moderation has only moderator; indirect has one mediator and may have a moderator for explicit moderated mediation."
+                      },
+                      "is_control": {
+                        "type": "boolean",
+                        "description": "True only for an explicitly identified structural control/covariate; false is not evidence of an explicit non-control claim."
+                      },
+                      "beta": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "description": "Reported signed coefficient at its reported precision; no [-1, 1] bound and no rounding for matching."
+                      },
+                      "coefficient_type": {
+                        "type": "string",
+                        "enum": [
+                          "standardized",
+                          "unstandardized",
+                          "unknown"
+                        ],
+                        "description": "Source-established type. If both a standardized and an unstandardized estimate are reported, each is its own record; the pipeline keeps the standardized one."
+                      },
+                      "p": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "pattern": "^(?:[<>]=?|=)?(?:0(?:\\.\\d+)?|1(?:\\.0+)?)$",
+                        "description": "Reported exact p-value or inequality, preserving boundaries; never calculated from a coefficient/test statistic. A relation reported only as nonsignificant (e.g. n.s.) without a p-value: \">0.1\". Reported, or marked by a scoped legend, as significant at level α without a p-value: \"<α\" (e.g. \"<0.05\")."
+                      },
+                      "significance": {
+                        "type": [
+                          "boolean",
+                          "null"
+                        ],
+                        "description": "Explicit source finding or decision under an applicable explicitly reported criterion. Never assume alpha; null when insufficient evidence or an unresolved conflict."
+                      },
+                      "model_id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "minLength": 1,
+                        "description": "Canonical context model ID when the sources establish it; otherwise null, never a wildcard."
+                      },
+                      "group_id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "minLength": 1,
+                        "description": "Canonical context population/sample group ID when uniquely established; otherwise null, never a wildcard."
+                      },
+                      "hypothesis_id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "minLength": 1,
+                        "description": "Explicitly associated hypothesis identifier; null if absent or unresolved."
+                      }
+                    },
+                    "required": [
+                      "cause",
+                      "effect",
+                      "moderator",
+                      "mediator",
+                      "effect_type",
+                      "is_control",
+                      "beta",
+                      "coefficient_type",
+                      "p",
+                      "significance",
+                      "model_id",
+                      "group_id",
+                      "hypothesis_id"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Complete relation for replace; null for keep/remove. Preserve unchanged valid fields."
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Brief evidence-based explanation; distinguish confirmation from retention without new evidence."
+              },
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0,
+                "description": "Original sources justifying the decision. May be [] for an unconfirmed keep; replace/remove require source support.",
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "candidate_id",
+              "action",
+              "replacement",
+              "reason",
+              "source_ids"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "description": "Exactly one decision per input candidate ID; keep/remove have null replacements."
+        },
+        "additions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "cause": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Canonical initial predictor, or the supplied label verbatim if context has no unique mapping."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Canonical directed outcome, or the supplied label verbatim if context has no unique mapping."
+              },
+              "moderator": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Named moderator only when explicitly represented; null otherwise."
+              },
+              "mediator": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Exactly one named mediator for an eligible indirect effect; null otherwise. Serial mediation is excluded."
+              },
+              "effect_type": {
+                "type": "string",
+                "enum": [
+                  "direct",
+                  "indirect",
+                  "moderation"
+                ],
+                "description": "Must agree with mediator/moderator: direct has neither; moderation has only moderator; indirect has one mediator and may have a moderator for explicit moderated mediation."
+              },
+              "is_control": {
+                "type": "boolean",
+                "description": "True only for an explicitly identified structural control/covariate; false is not evidence of an explicit non-control claim."
+              },
+              "beta": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "Reported signed coefficient at its reported precision; no [-1, 1] bound and no rounding for matching."
+              },
+              "coefficient_type": {
+                "type": "string",
+                "enum": [
+                  "standardized",
+                  "unstandardized",
+                  "unknown"
+                ],
+                "description": "Source-established type. If both a standardized and an unstandardized estimate are reported, each is its own record; the pipeline keeps the standardized one."
+              },
+              "p": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^(?:[<>]=?|=)?(?:0(?:\\.\\d+)?|1(?:\\.0+)?)$",
+                "description": "Reported exact p-value or inequality, preserving boundaries; never calculated from a coefficient/test statistic. A relation reported only as nonsignificant (e.g. n.s.) without a p-value: \">0.1\". Reported, or marked by a scoped legend, as significant at level α without a p-value: \"<α\" (e.g. \"<0.05\")."
+              },
+              "significance": {
+                "type": [
+                  "boolean",
+                  "null"
+                ],
+                "description": "Explicit source finding or decision under an applicable explicitly reported criterion. Never assume alpha; null when insufficient evidence or an unresolved conflict."
+              },
+              "model_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Canonical context model ID when the sources establish it; otherwise null, never a wildcard."
+              },
+              "group_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Canonical context population/sample group ID when uniquely established; otherwise null, never a wildcard."
+              },
+              "hypothesis_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Explicitly associated hypothesis identifier; null if absent or unresolved."
+              }
+            },
+            "required": [
+              "cause",
+              "effect",
+              "moderator",
+              "mediator",
+              "effect_type",
+              "is_control",
+              "beta",
+              "coefficient_type",
+              "p",
+              "significance",
+              "model_id",
+              "group_id",
+              "hypothesis_id"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "description": "New eligible original-source-supported relations, never duplicates of replacements."
+        }
+      },
+      "required": [
+        "decisions",
+        "additions"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

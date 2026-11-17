@@ -1,0 +1,232 @@
+{
+  "type": "object",
+  "properties": {
+    "constructs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Construct"
+      },
+      "minItems": 0
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Model"
+      },
+      "minItems": 0
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Group"
+      },
+      "minItems": 0
+    },
+    "significance_criteria": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SignificanceCriterion"
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "constructs",
+    "models",
+    "groups",
+    "significance_criteria"
+  ],
+  "additionalProperties": false,
+  "description": "One shared frozen article context. No relation/statistic extraction, default alpha, or figure transcriptions.",
+  "$defs": {
+    "Construct": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Attested full canonical construct name when available."
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "description": "Attested equivalent labels only; each label must identify one construct. No duplicate entries."
+        },
+        "definition": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Verbatim explicitly supplied construct definition; no paraphrase or reconstruction."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "description": "Verbatim explicitly supplied measurement items associated with this construct; [] when absent."
+        }
+      },
+      "required": [
+        "name",
+        "aliases",
+        "definition",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "Model": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One attested article label used consistently as the canonical ID."
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "description": "Attested equivalent labels; do not add unqualified aliases that are ambiguous across contexts. No duplicate entries."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Article-grounded model specification or population description, without paths or estimates."
+        }
+      },
+      "required": [
+        "id",
+        "aliases",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "Group": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One attested article label used consistently as the canonical ID."
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "description": "Attested equivalent labels; do not add unqualified aliases that are ambiguous across contexts. No duplicate entries."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Article-grounded model specification or population description, without paths or estimates."
+        }
+      },
+      "required": [
+        "id",
+        "aliases",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "SignificanceCriterion": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "p_threshold",
+            "significance_legend",
+            "confidence_interval",
+            "critical_value",
+            "other"
+          ]
+        },
+        "criterion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verbatim explicitly reported general/scoped decision rule. No invented alpha or path-specific finding."
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Original source in which the criterion is stated."
+        },
+        "scope_kind": {
+          "type": "string",
+          "enum": [
+            "article",
+            "sources"
+          ]
+        },
+        "applies_to": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source_id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Stable original source ID shared with extraction and fusion metadata."
+              },
+              "selector": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "description": "Article-attested panel, column, row block, section, or other subdivision; null for the whole source."
+              }
+            },
+            "required": [
+              "source_id",
+              "selector"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "description": "Empty for article scope; at least one source region for sources scope. No duplicate entries."
+        },
+        "model_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Canonical model ID restricting this criterion, or null if unspecified."
+        },
+        "group_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "description": "Canonical group ID restricting this criterion, or null if unspecified."
+        }
+      },
+      "required": [
+        "kind",
+        "criterion",
+        "source_id",
+        "scope_kind",
+        "applies_to",
+        "model_id",
+        "group_id"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
